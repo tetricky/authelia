@@ -2,7 +2,12 @@ import { WebauthnDevice } from "@models/Webauthn";
 import { WebauthnDevicesPath } from "@services/Api";
 import { GetWithOptionalData } from "@services/Client";
 
-// getWebauthnDevices returns the list of webauthn devices for the authenticated user.
-export async function getWebauthnDevices(): Promise<WebauthnDevice[] | null> {
-    return GetWithOptionalData<WebauthnDevice[] | null>(WebauthnDevicesPath);
+export async function getUserWebauthnDevices(): Promise<WebauthnDevice[]> {
+    const res = await GetWithOptionalData<WebauthnDevice[] | null>(WebauthnDevicesPath);
+
+    if (res === null) {
+        return [];
+    }
+
+    return res;
 }

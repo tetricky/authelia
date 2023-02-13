@@ -37,12 +37,22 @@ type UserSession struct {
 
 	// Webauthn holds the session registration data for this session.
 	Webauthn *Webauthn
+	TOTP     *TOTP
 
 	// This boolean is set to true after identity verification and checked
 	// while doing the query actually updating the password.
 	PasswordResetUsername *string
 
 	RefreshTTL time.Time
+}
+
+type TOTP struct {
+	Issuer    string
+	Algorithm string
+	Digits    uint
+	Period    uint
+	Secret    string
+	Expires   time.Time
 }
 
 // Webauthn holds the standard webauthn session data plus some extra.

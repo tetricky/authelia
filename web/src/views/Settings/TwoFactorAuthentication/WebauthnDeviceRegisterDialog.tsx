@@ -30,7 +30,6 @@ const steps = ["Description", "Verification"];
 
 interface Props {
     open: boolean;
-    onClose: () => void;
     setCancelled: () => void;
 }
 
@@ -65,7 +64,7 @@ const WebauthnDeviceRegisterDialog = function (props: Props) {
     }, [props]);
 
     const performCredentialCreation = useCallback(async () => {
-        if (options === null) {
+        if (!props.open || options === null) {
             return;
         }
 
@@ -109,7 +108,7 @@ const WebauthnDeviceRegisterDialog = function (props: Props) {
     }, [options, createErrorNotification, handleClose]);
 
     useEffect(() => {
-        if (state !== WebauthnTouchState.Failure || activeStep !== 0 || !props.open) {
+        if (!props.open || state !== WebauthnTouchState.Failure || activeStep !== 0) {
             return;
         }
 
@@ -126,39 +125,47 @@ const WebauthnDeviceRegisterDialog = function (props: Props) {
         })();
     }, [props.open, activeStep, options, performCredentialCreation]);
 
-    const handleNext = useCallback(async () => {
-        if (credentialDescription.length === 0 || credentialDescription.length > 64) {
-            setErrorDescription(true);
-            createErrorNotification(
-                translate("The Description must be more than 1 character and less than 64 characters."),
-            );
-
+    const handleNext = useCallback(() => {
+        if (!props.open) {
             return;
         }
 
-        const res = await getAttestationCreationOptions(credentialDescription);
-
-        switch (res.status) {
-            case 200:
-                if (res.options) {
-                    setOptions(res.options);
-                } else {
-                    throw new Error(
-                        "Credential Creation Options Request succeeded but Credential Creation Options is empty.",
-                    );
-                }
-
-                break;
-            case 409:
+        (async function () {
+            if (credentialDescription.length === 0 || credentialDescription.length > 64) {
                 setErrorDescription(true);
-                createErrorNotification(translate("A Webauthn Credential with that Description already exists."));
-
-                break;
-            default:
                 createErrorNotification(
-                    translate("Error occurred obtaining the Webauthn Credential creation options."),
+                    translate("The Description must be more than 1 character and less than 64 characters."),
                 );
-        }
+
+                return;
+            }
+
+            const res = await getAttestationCreationOptions(credentialDescription);
+
+            switch (res.status) {
+                case 200:
+                    if (res.options) {
+                        setOptions(res.options);
+                    } else {
+                        throw new Error(
+                            "Credential Creation Options Request succeeded but Credential Creation Options is empty.",
+                        );
+                    }
+
+                    break;
+                case 409:
+                    setErrorDescription(true);
+                    createErrorNotification(translate("A Webauthn Credential with that Description already exists."));
+
+                    break;
+                default:
+                    createErrorNotification(
+                        translate("Error occurred obtaining the Webauthn Credential creation options."),
+                    );
+            }
+
+            await performCredentialCreation();
+        })();
     }, [createErrorNotification, credentialDescription, translate]);
 
     const handleCredentialDescription = useCallback(
@@ -225,7 +232,7 @@ const WebauthnDeviceRegisterDialog = function (props: Props) {
     }
 
     const handleOnClose = () => {
-        if (activeStep === 0 || !props.open) {
+        if (!props.open || activeStep === 1) {
             return;
         }
 

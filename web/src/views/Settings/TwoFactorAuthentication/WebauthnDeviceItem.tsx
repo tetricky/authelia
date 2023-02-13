@@ -9,8 +9,8 @@ import { useTranslation } from "react-i18next";
 
 import { useNotifications } from "@hooks/NotificationsContext";
 import { WebauthnDevice } from "@models/Webauthn";
-import { deleteDevice, updateDevice } from "@services/Webauthn";
-import WebauthnDeviceDeleteDialog from "@views/Settings/TwoFactorAuthentication/WebauthnDeviceDeleteDialog";
+import { deleteUserWebAuthnDevice, updateUserWebAuthnDevice } from "@services/Webauthn";
+import DeleteDialog from "@views/Settings/TwoFactorAuthentication/DeleteDialog";
 import WebauthnDeviceDetailsDialog from "@views/Settings/TwoFactorAuthentication/WebauthnDeviceDetailsDialog";
 import WebauthnDeviceEditDialog from "@views/Settings/TwoFactorAuthentication/WebauthnDeviceEditDialog";
 
@@ -41,7 +41,7 @@ export default function WebauthnDeviceItem(props: Props) {
 
         setLoadingEdit(true);
 
-        const response = await updateDevice(props.device.id, name);
+        const response = await updateUserWebAuthnDevice(props.device.id, name);
 
         setLoadingEdit(false);
 
@@ -73,7 +73,7 @@ export default function WebauthnDeviceItem(props: Props) {
 
         setLoadingDelete(true);
 
-        const response = await deleteDevice(props.device.id);
+        const response = await deleteUserWebAuthnDevice(props.device.id);
 
         setLoadingDelete(false);
 
@@ -108,10 +108,16 @@ export default function WebauthnDeviceItem(props: Props) {
                         }}
                     />
                     <WebauthnDeviceEditDialog device={props.device} open={showDialogEdit} handleClose={handleEdit} />
-                    <WebauthnDeviceDeleteDialog
-                        device={props.device}
+                    <DeleteDialog
                         open={showDialogDelete}
                         handleClose={handleDelete}
+                        title={translate("Remove Webauthn Credential")}
+                        text={translate(
+                            "Are you sure you want to remove the Webauthn credential from from your account",
+                            {
+                                description: props.device.description,
+                            },
+                        )}
                     />
                     <Stack direction="row" spacing={1} alignItems="center">
                         <Fingerprint fontSize="large" color={"warning"} />
@@ -179,8 +185,8 @@ export default function WebauthnDeviceItem(props: Props) {
                         </Tooltip>
                         <Tooltip title={translate("Remove this Webauthn credential")}>
                             <Button
-                                variant="outlined"
-                                color="primary"
+                                variant={"outlined"}
+                                color={"error"}
                                 startIcon={
                                     loadingDelete ? <CircularProgress color="inherit" size={20} /> : <DeleteIcon />
                                 }
