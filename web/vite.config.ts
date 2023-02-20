@@ -66,7 +66,7 @@ export default defineConfig(({ mode }) => {
             onConsoleLog(log) {
                 if (log.includes('No routes matched location "blank"')) return false;
             },
-            setupFiles: ["src/setupTests.js"],
+            setupFiles: ["src/setupTests.ts"],
         },
         plugins: [eslintPlugin({ cache: false }), htmlPlugin(), istanbulPlugin, react(), svgr(), tsconfigPaths()],
     };
