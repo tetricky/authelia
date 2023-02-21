@@ -50,6 +50,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "test": "vitest run --coverage",
     "test:watch": "vitest --coverage",
+    "test:preview": "vitest-preview",
     "report": "nyc report -r clover -r json -r lcov -r text"
   },
   "eslintConfig": {
@@ -107,6 +108,7 @@
     "vite-plugin-istanbul": "4.0.0",
     "vite-plugin-svgr": "2.4.0",
     "vite-tsconfig-paths": "4.0.5",
-    "vitest": "0.28.5"
+    "vitest": "0.28.5",
+    "vitest-preview": "0.0.1"
   }
 }
